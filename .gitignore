@@ -1,0 +1,13 @@
+# Node.js
+node_modules/
+.env
+
+# VSCode
+.vscode/
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# NexSoft si no lo quieres subir
+NexSoft/
