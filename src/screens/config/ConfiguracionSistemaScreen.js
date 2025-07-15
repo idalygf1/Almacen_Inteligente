@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLanguage } from '../../context/LanguageContext';
 
 const COLORES_DISPONIBLES = [
   '#0033ff', '#00cc99', '#ffcc00',
@@ -18,9 +19,24 @@ const COLORES_DISPONIBLES = [
   '#ffffff', '#e11d48', '#9333ea', '#16a34a'
 ];
 
+const LANGUAGES = [
+  { code: 'es', flag: '🇲🇽' },
+  { code: 'ne', flag: '🇳🇪' },
+  { code: 'en', flag: '🇱🇷' },
+  { code: 'fr', flag: '🇫🇷' },
+  { code: 'it', flag: '🇮🇹' },
+  { code: 'pt', flag: '🇵🇹' },
+  { code: 'zh', flag: '🇨🇳' },
+  { code: 'de', flag: '🇩🇪' },
+  { code: 'ar', flag: '🇸🇦' },
+  { code: 'ja', flag: '🇯🇵' },
+  { code: 'ru', flag: '🇷🇺' },
+];
+
 export default function ConfiguracionSistemaScreen() {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { language, changeLanguage, t } = useLanguage();
 
   const fetchConfig = async () => {
     try {
@@ -91,17 +107,17 @@ export default function ConfiguracionSistemaScreen() {
 
       <View style={styles.card}>
         {/* Logo */}
-        <Text style={styles.sectionTitle}>Logo actual</Text>
+        <Text style={styles.sectionTitle}>{t('logo')}</Text>
         <Image source={{ uri: config.logo_url }} style={styles.logo} />
         <Text style={styles.subtext}>El logo se carga desde el backend</Text>
 
         {/* Paleta de colores */}
-        <Text style={styles.sectionTitle}>Paleta de colores</Text>
+        <Text style={styles.sectionTitle}>{t('color_palette')}</Text>
 
-        {[
-          { label: 'Primario', key: 'color_primary' },
-          { label: 'Secundario', key: 'color_secondary' },
-          { label: 'Terciario', key: 'color_tertiary' },
+        {[ 
+          { label: t('primary'), key: 'color_primary' },
+          { label: t('secondary'), key: 'color_secondary' },
+          { label: t('tertiary'), key: 'color_tertiary' },
         ].map((item) => (
           <View key={item.key} style={{ marginBottom: 16 }}>
             <Text style={styles.label}>{item.label}</Text>
@@ -124,9 +140,32 @@ export default function ConfiguracionSistemaScreen() {
           </View>
         ))}
 
+        {/* Idioma */}
+        <Text style={styles.sectionTitle}>{t('language')}</Text>
+        <View style={styles.langRow}>
+          {LANGUAGES.map((lang) => (
+            <TouchableOpacity
+              key={lang.code}
+              onPress={() => changeLanguage(lang.code)}
+            >
+              <Text
+                style={[
+                  styles.langCircle,
+                  {
+                    borderColor: language === lang.code ? '#000' : '#ccc',
+                    borderWidth: language === lang.code ? 2 : 1,
+                  },
+                ]}
+              >
+                {lang.flag}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         {/* Botón guardar */}
         <TouchableOpacity style={styles.saveButton} onPress={guardarCambios}>
-          <Text style={styles.saveButtonText}>Guardar cambios</Text>
+          <Text style={styles.saveButtonText}>{t('save_changes')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -182,10 +221,25 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
   },
+  langRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 8,
+  },
   colorCircle: {
     width: 32,
     height: 32,
     borderRadius: 16,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  langCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 10,
     marginBottom: 10,
   },

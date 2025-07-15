@@ -10,6 +10,7 @@ import AuthNavigator from './src/navigation/AuthNavigator';
 import { ThemeProvider } from './src/context/ThemeContext';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ProductProvider } from './src/context/ProductContext';
+import { LanguageProvider } from './src/context/LanguageContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,11 +49,13 @@ function RootNavigation() {
 export default function App() {
   return (
     <AuthProvider>
-      <ThemeProvider>
-        <ProductProvider>
-          <RootNavigation />
-        </ProductProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <ProductProvider>
+            <RootNavigation />
+          </ProductProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </AuthProvider>
   );
 }
