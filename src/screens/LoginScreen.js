@@ -12,6 +12,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
@@ -20,6 +21,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [secure, setSecure] = useState(true);
   const { login } = useAuth(); // ✅ solo espera un parámetro
+  const { t } = useLanguage();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -79,7 +81,7 @@ export default function LoginScreen() {
             <MaterialIcons name="email" size={20} color="#666" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Usuario"
+              placeholder={t('login_user')}
               placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
@@ -92,7 +94,7 @@ export default function LoginScreen() {
             <MaterialIcons name="lock" size={20} color="#666" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Contraseña"
+              placeholder={t('login_password')}
               placeholderTextColor="#999"
               value={password}
               onChangeText={setPassword}
@@ -108,7 +110,7 @@ export default function LoginScreen() {
           </View>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Iniciar sesión</Text>
+            <Text style={styles.buttonText}>{t('login_button')}</Text>
           </TouchableOpacity>
         </View>
       </View>

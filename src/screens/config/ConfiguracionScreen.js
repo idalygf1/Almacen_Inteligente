@@ -10,10 +10,12 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Font from 'expo-font';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function ConfiguracionScreen({ navigation }) {
   const { theme, colors } = useTheme();
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const { t } = useLanguage();
 
   const getIcon = (light, dark) => (theme === 'dark' ? dark : light);
 
@@ -21,7 +23,7 @@ export default function ConfiguracionScreen({ navigation }) {
 
   const settings = [
     {
-      title: 'U S U A R I O S',
+      title: t('users'),
       img: getIcon(
         require('../../../assets/usuarios.png'),
         require('../../../assets/usuarios-blanco.png')
@@ -29,12 +31,12 @@ export default function ConfiguracionScreen({ navigation }) {
       route: 'Usuarios',
     },
     {
-      title: 'P R E F E R E N C I A S',
+      title: t('preferences'),
       img: require('../../../assets/paleta.png'),
       route: 'Preferencias',
     },
     {
-      title: 'C O N F I G U R A C I Ó N\nD E L   S I S T E M A',
+      title: `${t('config')}\nD E L   S I S T E M A`,
       img: getIcon(
         require('../../../assets/configuracion.png'),
         require('../../../assets/configuracion-blanco.png')
@@ -63,7 +65,7 @@ export default function ConfiguracionScreen({ navigation }) {
         { backgroundColor: colors.background },
       ]}
     >
-      <Text style={[styles.title, { color: colors.text }]}>C O N F I G U R A C I Ó N</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{t('config')}</Text>
 
       {settings.map((item, index) => (
         <TouchableOpacity

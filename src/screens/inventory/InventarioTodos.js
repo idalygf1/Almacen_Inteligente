@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -18,13 +18,14 @@ import { Ionicons } from '@expo/vector-icons';
 import RegistrarProductos from './RegistrarProductos';
 import DetalleProductoModal from './DetalleProductoModal';
 import HeaderBar from '../../components/HeaderBar';
+import { ProductContext } from '../../context/ProductContext';
 
 const InventarioTodos = () => {
   const { token } = useAuth();
   const { colors } = useTheme();
   const navigation = useNavigation();
 
-  const [productos, setProductos] = useState([]);
+  const { products: productos, setProducts } = useContext(ProductContext);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [detalleVisible, setDetalleVisible] = useState(false);
@@ -44,10 +45,10 @@ const InventarioTodos = () => {
 
       const data = await res.json();
       const productosRecibidos = data.products || data.results || data.data || [];
-      setProductos(productosRecibidos);
+      setProducts(productosRecibidos);
     } catch (error) {
       console.error('Error al cargar productos:', error);
-      setProductos([]);
+      setProducts([]);
     } finally {
       setLoading(false);
     }

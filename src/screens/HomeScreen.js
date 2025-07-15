@@ -15,11 +15,13 @@ import HeaderBar from '../components/HeaderBar';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Font from 'expo-font';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const { token } = useAuth();
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [utilidad, setUtilidad] = useState('');
@@ -67,21 +69,21 @@ export default function HomeScreen() {
     <View style={{ flex: 1 }}>
       <HeaderBar />
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>F I N A N Z A S</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('finances')}</Text>
         <View style={styles.singleCardRow}>
           <LinearGradient colors={colors.gradientCard} style={styles.card}>
-            <Text style={[styles.cardTitle, { color: colors.cardText }]}>Utilidad</Text>
+            <Text style={[styles.cardTitle, { color: colors.cardText }]}>{t('utility')}</Text>
             <Text style={[styles.cardValue, { color: colors.cardText }]}>
               {utilidad ? `$${Number(utilidad).toLocaleString('es-MX')}` : '...'}
             </Text>
           </LinearGradient>
         </View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>M O N I T O R E O</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('monitoring')}</Text>
         <View style={styles.cardRow}>
           <LinearGradient colors={colors.gradientCard} style={styles.card}>
             <Image source={require('./../../assets/temp.png')} style={styles.icon} />
-            <Text style={[styles.cardTitle, { color: colors.cardText }]}>Temperatura</Text>
+            <Text style={[styles.cardTitle, { color: colors.cardText }]}>{t('temperature')}</Text>
             <Text style={[styles.cardValue, { color: colors.cardText }]}>
               {temperatura ? `${temperatura} °C` : '...'}
             </Text>
@@ -89,14 +91,14 @@ export default function HomeScreen() {
 
           <LinearGradient colors={colors.gradientCard} style={styles.card}>
             <Image source={require('./../../assets/drop.png')} style={styles.icon} />
-            <Text style={[styles.cardTitle, { color: colors.cardText }]}>Humedad</Text>
+            <Text style={[styles.cardTitle, { color: colors.cardText }]}>{t('humidity')}</Text>
             <Text style={[styles.cardValue, { color: colors.cardText }]}>
               {humedad ? `${humedad} %` : '...'}
             </Text>
           </LinearGradient>
         </View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>A L E R T A S</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('alerts')}</Text>
         <View style={styles.alertContainer}>
           {alertas.map((alerta) => (
             <LinearGradient
