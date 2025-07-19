@@ -124,9 +124,10 @@ const InventarioCerca = () => {
 
   return (
     <>
-      <HeaderBar />
+      <HeaderBar customTitle="Cerca del Mínimo" />
+
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.text }]}>C E R C A  D E L  M Í N I M O</Text>
+
 
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (

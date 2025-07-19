@@ -83,7 +83,8 @@ const Monitoreo = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HeaderBar title="Monitoreo" />
+      <HeaderBar customTitle="Monitoreo" />
+
       <ScrollView contentContainerStyle={styles.scroll}>
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary} />

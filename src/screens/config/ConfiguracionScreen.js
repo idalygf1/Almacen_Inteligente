@@ -10,13 +10,13 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Font from 'expo-font';
+import HeaderBar from '../../components/HeaderBar'; // 👈🏼 se agregó el header
 
 export default function ConfiguracionScreen({ navigation }) {
   const { theme, colors } = useTheme();
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   const getIcon = (light, dark) => (theme === 'dark' ? dark : light);
-
   const isDark = theme === 'dark';
 
   const settings = [
@@ -57,31 +57,35 @@ export default function ConfiguracionScreen({ navigation }) {
   if (!fontsLoaded) return null;
 
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.container,
-        { backgroundColor: colors.background },
-      ]}
-    >
-      <Text style={[styles.title, { color: colors.text }]}>C O N F I G U R A C I Ó N</Text>
+    <View style={{ flex: 1 }}>
+      <HeaderBar customTitle="Configuración" />
 
-      {settings.map((item, index) => (
-        <TouchableOpacity
-          key={index}
-          onPress={() => navigation.navigate(item.route)}
-          activeOpacity={0.9}
-          style={styles.touchable}
-        >
-          <LinearGradient
-            colors={isDark ? ['#2b2b2b', '#1f1f1f'] : ['#ffffff', '#bbbcc1']}
-            style={styles.card}
+
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+
+        {settings.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => navigation.navigate(item.route)}
+            activeOpacity={0.9}
+            style={styles.touchable}
           >
-            <Image source={item.img} style={styles.icon} />
-            <Text style={[styles.cardText, { color: colors.text }]}>{item.title}</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+            <LinearGradient
+              colors={isDark ? ['#2b2b2b', '#1f1f1f'] : ['#ffffff', '#bbbcc1']}
+              style={styles.card}
+            >
+              <Image source={item.img} style={styles.icon} />
+              <Text style={[styles.cardText, { color: colors.text }]}>{item.title}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 

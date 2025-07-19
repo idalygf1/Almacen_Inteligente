@@ -124,9 +124,9 @@ const InventarioTodos = () => {
 
   return (
     <>
-      <HeaderBar />
+      <HeaderBar customTitle="Todos" />
+
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.text }]}>T O D O S</Text>
 
         <TextInput
           style={[styles.searchInput, { backgroundColor: colors.card, color: colors.text }]}

@@ -4,7 +4,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
 import HomeScreen from '../screens/HomeScreen';
-import PerfilScreen from '../screens/PerfilScreen';
 import ConfiguracionScreen from '../screens/config/ConfiguracionScreen';
 import PreferenciasScreen from '../screens/config/PreferenciasScreen';
 import UsuariosScreen from '../screens/config/users/UsuariosScreen';
@@ -22,6 +21,10 @@ import InventarioDebajo from '../screens/inventory/InventarioDebajo';
 import InventarioCerca from '../screens/inventory/InventarioCerca';
 import InventoryScreen from '../screens/inventory/InventoryScreen';
 import InventarioSobreStock from '../screens/inventory/InventarioSobreStock';
+import FinanzasResumen from '../screens/finanzas/FinanzasResumen';
+import FinanzasPrediccion from '../screens/finanzas/FinanzasPrediccion';
+import FinanzasIA from '../screens/finanzas/FinanzasIA';
+
 
 import CustomDrawer from './CustomDrawer';
 
@@ -46,7 +49,6 @@ const DrawerNavigator = () => {
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="Inventario" component={InventoryScreen} />
-      <Drawer.Screen name="P E R F I L" component={PerfilScreen} />
       <Drawer.Screen name="Configuracion" component={ConfiguracionScreen} />
       <Drawer.Screen name="Usuarios" component={UsuariosScreen} options={{ drawerItemStyle: { height: 0 } }} />
       <Drawer.Screen name="Preferencias" component={PreferenciasScreen} options={{ drawerItemStyle: { height: 0 } }} />
@@ -64,6 +66,12 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="InventarioDebajo" component={InventarioDebajo} options={{ drawerItemStyle: { height: 0 } }} />
       <Drawer.Screen name="InventarioCerca" component={InventarioCerca} options={{ drawerItemStyle: { height: 0 } }} />
       <Drawer.Screen name="InventarioSobreStock" component={InventarioSobreStock} options={{ drawerItemStyle: { height: 0 } }} />
+      <Drawer.Screen name="FinanzasEstado" component={FinanzasEstado} />
+      <Drawer.Screen name="FinanzasResumen" component={FinanzasResumen} />
+      <Drawer.Screen name="FinanzasPrediccion" component={FinanzasPrediccion} />
+      <Drawer.Screen name="FinanzasIA" component={FinanzasIA} />
+
+
     </Drawer.Navigator>
   );
 };

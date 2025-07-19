@@ -121,9 +121,9 @@ const InventarioCaducidad = () => {
 
   return (
     <>
-      <HeaderBar />
+      <HeaderBar customTitle="Próximos a caducar" />
+
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.text }]}>P R Ó X I M O S  A  C A D U C A R</Text>
 
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (

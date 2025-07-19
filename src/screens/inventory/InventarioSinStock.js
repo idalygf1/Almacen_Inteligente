@@ -126,9 +126,9 @@ const InventarioSinStock = () => {
 
   return (
     <>
-      <HeaderBar />
+      <HeaderBar customTitle="Sin Stock" />
+
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.text }]}>S I N  S T O C K</Text>
 
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (

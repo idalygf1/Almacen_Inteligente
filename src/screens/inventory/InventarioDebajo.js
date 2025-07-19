@@ -128,9 +128,9 @@ const InventarioDebajo = () => {
 
   return (
     <>
-      <HeaderBar />
+      <HeaderBar customTitle="Debajo del Mínimo" />
+
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.text }]}>D E B A J O  D E L  M Í N I M O</Text>
 
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (

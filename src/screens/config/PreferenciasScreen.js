@@ -9,7 +9,8 @@ export default function PreferenciasScreen() {
 
   return (
     <>
-      <HeaderBar title="Preferencias" />
+      <HeaderBar customTitle="Preferencias" />
+
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Image
           source={require('../../../assets/paleta.png')}

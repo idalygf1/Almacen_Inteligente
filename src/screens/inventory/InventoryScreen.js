@@ -105,9 +105,8 @@ const InventoryScreen = () => {
 
   return (
     <>
-      <HeaderBar />
+      <HeaderBar customTitle="Inventario"/>
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-        <RNText style={[styles.title, { color: colors.text }]}>I N V E N T A R I O</RNText>
 
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (

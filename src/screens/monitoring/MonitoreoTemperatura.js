@@ -96,7 +96,6 @@ const MonitoreoTemperatura = () => {
     <View style={[styles.full, { backgroundColor: colors.background }]}>
       <HeaderBar title="Temperatura" />
       <ScrollView style={[styles.container]}>
-        <Text style={[styles.title, { color: colors.text }]}>T E M P E R A T U R A</Text>
 
         <View style={styles.filterContainer}>
           {FILTER_OPTIONS.map(opt => {

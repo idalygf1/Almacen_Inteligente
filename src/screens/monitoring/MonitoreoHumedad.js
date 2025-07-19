@@ -96,7 +96,6 @@ const MonitoreoHumedad = () => {
     <View style={[styles.fullContainer, { backgroundColor: colors.background }]}>
       <HeaderBar title="Humedad" />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={[styles.title, { color: colors.text }]}>H U M E D A D</Text>
 
         <View style={styles.filterContainer}>
           {FILTER_OPTIONS.map(opt => {

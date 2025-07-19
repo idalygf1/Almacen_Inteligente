@@ -129,10 +129,10 @@ const UsuariosScreen = () => {
 
   return (
     <>
-      <HeaderBar title="Usuarios" />
+      <HeaderBar customTitle="USUARIOS" />
+
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.headerRow}>
-          <RNText style={[styles.title, { color: colors.text }]}>Usuarios</RNText>
           <TouchableOpacity
             style={[styles.addButton, { backgroundColor: colors.button }]}
             onPress={() => setModalAgregarVisible(true)}

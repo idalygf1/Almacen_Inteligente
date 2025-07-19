@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext'; // ✅ Agregado
 
 import HomeScreen from '../screens/HomeScreen';
-import PerfilScreen from '../screens/PerfilScreen';
 import FinanzasStack from './FinanzasStack';
 import InventarioStack from './InventarioStack';
 import MonitoreoStack from './MonitoreoStack';
@@ -37,9 +36,6 @@ const TabNavigator = () => {
             case 'Configuración':
               iconName = 'settings-outline';
               break;
-            case 'Perfil':
-              iconName = 'person-outline';
-              break;
             default:
               iconName = 'ellipse-outline';
           }
@@ -54,11 +50,10 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="Inicio" component={HomeScreen} />
-      <Tab.Screen name="Finanzas" component={FinanzasStack} />
-      <Tab.Screen name="Inventario" component={InventarioStack} />
       <Tab.Screen name="Monitoreo" component={MonitoreoStack} />
+      <Tab.Screen name="Inventario" component={InventarioStack} />
+      <Tab.Screen name="Finanzas" component={FinanzasStack} />
       <Tab.Screen name="Configuración" component={ConfiguracionStack} />
-      <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
 };

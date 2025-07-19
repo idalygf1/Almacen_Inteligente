@@ -12,6 +12,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient'; // ✅ agregado
 
 const { width } = Dimensions.get('window');
 
@@ -19,7 +20,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secure, setSecure] = useState(true);
-  const { login } = useAuth(); // ✅ solo espera un parámetro
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -38,9 +39,8 @@ export default function LoginScreen() {
 
       if (response.status === 201) {
         await AsyncStorage.setItem('accessToken', data.accessToken);
-
         await AsyncStorage.setItem('user', JSON.stringify(data.user));
-        login(data.accessToken); // ✅ solo 1 argumento
+        login(data.accessToken);
       } else {
         Alert.alert('Error', 'Usuario y contraseña inválidos');
       }
@@ -51,7 +51,10 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#ffffff', '#888888', '#000000']}
+      style={styles.container}
+    >
       {/* Líneas superiores */}
       <View style={styles.diagonalContainer}>
         <View style={[styles.diagonal, { backgroundColor: '#656565', top: 0 }]} />
@@ -112,15 +115,31 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  centeredContent: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  logo: { width: 130, height: 130, marginBottom: 20 },
-  card: { width: '85%', backgroundColor: '#f0f0f0', borderRadius: 16, padding: 20, elevation: 2 },
+  container: {
+    flex: 1,
+  },
+  centeredContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 130,
+    height: 130,
+    marginBottom: 20,
+  },
+  card: {
+    width: '85%',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 2,
+  },
   inputContainer: {
     backgroundColor: '#ddd',
     borderRadius: 8,
@@ -130,13 +149,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  icon: { marginRight: 8 },
-  input: { flex: 1, fontSize: 16, color: '#000' },
-  button: { backgroundColor: '#8a8989', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 10 },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
-  diagonalContainer: { position: 'absolute', top: 0, left: 0, width: 500, height: 200, overflow: 'hidden' },
-  diagonal: { position: 'absolute', left: -40, width: 300, height: 20, transform: [{ rotate: '-30deg' }], borderRadius: 4 },
-  diagonalContainerBottomRight: { position: 'absolute', bottom: -80, right: -200, width: 900, height: 200, overflow: 'hidden' },
-  diagonalRight: { position: 'absolute', right: -60, width: 500, height: 20, transform: [{ rotate: '-30deg' }], borderRadius: 4 },
-  title: { fontSize: 30, fontWeight: 'bold', marginLeft: 20, marginTop: 15, marginBottom: 10, textAlign: 'center', fontFamily: 'italic' },
+  icon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+  },
+  button: {
+    backgroundColor: '#8a8989',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  diagonalContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 500,
+    height: 200,
+    overflow: 'hidden',
+  },
+  diagonal: {
+    position: 'absolute',
+    left: -40,
+    width: 300,
+    height: 20,
+    transform: [{ rotate: '-30deg' }],
+    borderRadius: 4,
+  },
+  diagonalContainerBottomRight: {
+    position: 'absolute',
+    bottom: -80,
+    right: -200,
+    width: 900,
+    height: 200,
+    overflow: 'hidden',
+  },
+  diagonalRight: {
+    position: 'absolute',
+    right: -60,
+    width: 500,
+    height: 20,
+    transform: [{ rotate: '-30deg' }],
+    borderRadius: 4,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginLeft: 20,
+    marginTop: 15,
+    marginBottom: 10,
+    textAlign: 'center',
+    fontFamily: 'italic',
+  },
 });
