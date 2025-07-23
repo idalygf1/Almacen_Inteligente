@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
+import { ColorPicker } from 'react-native-color-picker';
 
 export default function HeaderBar({ customTitle }) {
   const { colors } = useTheme();

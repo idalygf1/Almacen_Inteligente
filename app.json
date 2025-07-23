@@ -20,13 +20,23 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.idalyggf.nexsoft"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-localization"
-    ]
+    ],
+    "assetBundlePatterns": [
+      "assets/team/*",
+      "assets/fonts/*",
+      "assets/icons/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "03c661f2-87ec-4751-afcc-92d802e8ee2e"
+      }
+    }
   }
 }

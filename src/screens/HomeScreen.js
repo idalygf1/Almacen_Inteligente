@@ -64,7 +64,11 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
       <HeaderBar />
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: colors.background }}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
 
         {/* Finanzas */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Finanzas</Text>
@@ -120,14 +124,11 @@ export default function HomeScreen() {
 
         {/* Botón Acerca de */}
         <TouchableOpacity
-  style={[styles.aboutButton, { backgroundColor: colors.primaryLight }]}
-  onPress={() => navigation.navigate('Acerca')}
->
-  <Text style={[styles.aboutText, { color: colors.cardText }]}>N O S O T R O S</Text>
-</TouchableOpacity>
-
-
-
+          style={[styles.aboutButton, { backgroundColor: colors.primaryLight }]}
+          onPress={() => navigation.navigate('Acerca')}
+        >
+          <Text style={[styles.aboutText, { color: colors.cardText }]}>N O S O T R O S</Text>
+        </TouchableOpacity>
 
       </ScrollView>
     </View>
@@ -136,8 +137,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 24,
     paddingHorizontal: 16,
+    paddingBottom: 100,
   },
   sectionTitle: {
     fontSize: 20,
@@ -210,8 +211,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
     marginBottom: 10,
-    width: 200,
-    left: 285,
+    width: 150,
+    left: 20,
   },
   aboutText: {
     fontSize: 16,

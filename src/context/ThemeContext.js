@@ -54,7 +54,7 @@ export const ThemeProvider = ({ children }) => {
     primary: '#1e40af',
     secondary: '#50e3c2',
     tertiary: '#f5a623',
-    primaryLight: '#bcd2ff', // fallback
+    primaryLight: '#bcd2ff',
   });
 
   const toggleTheme = () => {
@@ -73,7 +73,7 @@ export const ThemeProvider = ({ children }) => {
       const { color_primary, color_secondary, color_tertiary } = res.data;
 
       if (color_primary && color_secondary && color_tertiary) {
-        const primaryLight = lightenColor(color_secondary, 0.1); // más claro el secundario
+        const primaryLight = lightenColor(color_secondary, 0.1);
         setDynamicColors({
           primary: color_primary,
           secondary: color_secondary,
@@ -93,16 +93,19 @@ export const ThemeProvider = ({ children }) => {
   const currentBase = theme === 'light' ? baseLight : baseDark;
 
   const colors = {
-    ...currentBase,
-    ...dynamicColors,
-    card: dynamicColors.primaryLight,
-    button: dynamicColors.primary,
-  };
+  ...currentBase,
+  ...dynamicColors,
+  card: dynamicColors.primaryLight,
+  button: dynamicColors.primary,
+  gradientCard: [dynamicColors.primary, dynamicColors.secondary],
+};
+
 
   return (
     <ThemeContext.Provider
       value={{
         theme,
+        dark: theme === 'dark', // ✅ ESTO ES LO QUE FALTABA
         colors,
         toggleTheme,
         fetchColorsFromBackend,

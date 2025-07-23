@@ -37,7 +37,8 @@ const UsuariosScreen = () => {
       const response = await axios.get('https://auth.nexusutd.online/auth/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsuarios(response.data.users);
+
+      setUsuarios(Array.isArray(response.data.users) ? response.data.users : []);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
     } finally {
@@ -65,63 +66,67 @@ const UsuariosScreen = () => {
     }
   };
 
-  const renderItem = ({ item }) => (
-    <LinearGradient colors={colors.gradientCard} style={styles.card}>
-      <RNText style={[styles.username, { color: colors.text }]}>
-        <Ionicons name="person" size={16} /> {item.username}
-      </RNText>
+  const renderItem = ({ item }) => {
+    if (!item) return null;
 
-      <View style={styles.infoContainer}>
-        <RNText style={[styles.label, { color: colors.text }]}>Nombre:</RNText>
-        <RNText style={[styles.value, { color: colors.text }]}>
-          {item.first_name} {item.last_name}
+    return (
+      <LinearGradient colors={colors.gradientCard} style={styles.card}>
+        <RNText style={[styles.username, { color: colors.text }]}>
+          <Ionicons name="person" size={16} /> {item.username}
         </RNText>
-      </View>
 
-      <View style={styles.infoContainer}>
-        <RNText style={[styles.label, { color: colors.text }]}>Rol:</RNText>
-        <RNText style={[styles.value, { color: colors.text }]}>{item.role.name}</RNText>
-      </View>
+        <View style={styles.infoContainer}>
+          <RNText style={[styles.label, { color: colors.text }]}>Nombre:</RNText>
+          <RNText style={[styles.value, { color: colors.text }]}>
+            {item.first_name} {item.last_name}
+          </RNText>
+        </View>
 
-      <View style={styles.infoContainer}>
-        <RNText style={[styles.label, { color: colors.text }]}>Estado:</RNText>
-        <RNText style={[styles.estado, item.is_active ? styles.activo : styles.inactivo]}>
-          {item.is_active ? 'Activo' : 'Inactivo'}
-        </RNText>
-      </View>
+        <View style={styles.infoContainer}>
+          <RNText style={[styles.label, { color: colors.text }]}>Rol:</RNText>
+          <RNText style={[styles.value, { color: colors.text }]}>{item.role?.name || ''}</RNText>
+        </View>
 
-      <View style={styles.actions}>
-        <TouchableOpacity
-          onPress={() => {
-            setUsuarioSeleccionado(item);
-            setModalEditarVisible(true);
-          }}
-        >
-          <FontAwesome name="edit" size={22} color="#3498db" style={styles.icon} />
-        </TouchableOpacity>
+        <View style={styles.infoContainer}>
+          <RNText style={[styles.label, { color: colors.text }]}>Estado:</RNText>
+          <RNText style={[styles.estado, item.is_active ? styles.activo : styles.inactivo]}>
+            {item.is_active ? 'Activo' : 'Inactivo'}
+          </RNText>
+        </View>
 
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('CambiarContraseñaUsuario', {
-              id: item.id,
-              username: item.username,
-            })
-          }
-        >
-          <MaterialIcons name="lock-reset" size={22} color="#f1c40f" style={styles.icon} />
-        </TouchableOpacity>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            onPress={() => {
+              setUsuarioSeleccionado(item);
+              setModalEditarVisible(true);
+            }}
+          >
+            <FontAwesome name="edit" size={22} color="#3498db" style={styles.icon} />
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => {
-            setUsuarioSeleccionado(item);
-            setModalVisible(true);
-          }}
-        >
-          <Ionicons name="trash" size={22} color="#e74c3c" style={styles.icon} />
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
-  );
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('CambiarContraseñaUsuario', {
+                id: item.id,
+                username: item.username,
+              })
+            }
+          >
+            <MaterialIcons name="lock-reset" size={22} color="#f1c40f" style={styles.icon} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setUsuarioSeleccionado(item);
+              setModalVisible(true);
+            }}
+          >
+            <Ionicons name="trash" size={22} color="#e74c3c" style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    );
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 50 }} />;
@@ -143,8 +148,8 @@ const UsuariosScreen = () => {
         </View>
 
         <FlatList
-          data={usuarios}
-          keyExtractor={(item) => item.id.toString()}
+          data={Array.isArray(usuarios) ? usuarios : []}
+          keyExtractor={(item) => item.id?.toString()}
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 100 }}
         />
@@ -209,10 +214,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
   },
   addButton: {
     flexDirection: 'row',

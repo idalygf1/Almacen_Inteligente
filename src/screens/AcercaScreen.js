@@ -142,13 +142,21 @@ const testimonios = [
   }
 ];
 
+const imgAntonio = require('../../assets/team/antonio.jpg');
+const imgJose = require('../../assets/team/jose.jpg');
+const imgIdaly = require('../../assets/team/idaly.jpg');
+const imgGustavo = require('../../assets/team/gustavo.jpg');
+const imgJessica = require('../../assets/team/jessica.jpg');
+
 const equipo = [
-  { nombre: 'Antonio Delgado', rol: 'Cloud Architect', foto: require('../../assets/antonio.png') },
-  { nombre: 'José Rodríguez', rol: 'iOS Developer', foto: require('../../assets/jose.png') },
-  { nombre: 'Idaly García', rol: 'Mobile Developer', foto: require('../../assets/idaly.png') },
-  { nombre: 'Gustavo Ocampo', rol: 'Backend Developer', foto: require('../../assets/gustavo.png') },
-  { nombre: 'Jessica Malacara', rol: 'Frontend Developer', foto: require('../../assets/jessica.png') },
+  { nombre: 'Antonio Delgado', rol: 'Cloud Architect', foto: imgAntonio },
+  { nombre: 'José Rodríguez', rol: 'iOS Developer', foto: imgJose },
+  { nombre: 'Idaly García', rol: 'Mobile Developer', foto: imgIdaly },
+  { nombre: 'Gustavo Ocampo', rol: 'Backend Developer', foto: imgGustavo },
+  { nombre: 'Jessica Malacara', rol: 'Frontend Developer', foto: imgJessica },
 ];
+
+
 
 const styles = StyleSheet.create({
   container: { padding: 20 },

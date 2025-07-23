@@ -11,3 +11,6 @@ Thumbs.db
 
 # NexSoft si no lo quieres subir
 NexSoft/
+
+/android
+/ios
