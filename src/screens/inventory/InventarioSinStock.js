@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ScrollView,
   View,
   Text,
-  TouchableOpacity,
-  Image,
   StyleSheet,
+  Image,
+  ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
   Modal,
 } from 'react-native';
 import axios from 'axios';
+import socket from '../../services/socket';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import RegistrarProductos from './RegistrarProductos';
 import DetalleProductoModal from './DetalleProductoModal';
+import HeaderBar from '../../components/HeaderBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import HeaderBar from '../../components/HeaderBar';
 
 const InventarioSinStock = () => {
   const { token } = useAuth();
@@ -29,22 +30,17 @@ const InventarioSinStock = () => {
   const [productoDetalle, setProductoDetalle] = useState(null);
   const [detalleVisible, setDetalleVisible] = useState(false);
 
-  const fetchProductos = async () => {
-    if (!token) return;
-
+  const fetchData = async () => {
     try {
       const res = await axios.get(
         'https://inventory.nexusutd.online/inventory/products?status=out_of_stock&page=1&limit=1000',
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      if (Array.isArray(res.data.products)) {
-        setProductos(res.data.products);
-      } else {
-        setProductos([]);
-      }
+      setProductos(res.data.products || []);
     } catch (error) {
       console.error('Error al cargar productos sin stock:', error);
-      setProductos([]);
     } finally {
       setLoading(false);
     }
@@ -55,8 +51,9 @@ const InventarioSinStock = () => {
       const res = await axios.get(`https://inventory.nexusutd.online/inventory/products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (res.data?.product) {
-        setProductoDetalle({ ...res.data.product, id: res.data.product._id });
+        setProductoDetalle(res.data.product);
         setDetalleVisible(true);
       }
     } catch (error) {
@@ -65,7 +62,27 @@ const InventarioSinStock = () => {
   };
 
   useEffect(() => {
-    fetchProductos();
+    socket.connect();
+    const handleInventoryUpdate = (payload) => {
+      const { cardData } = payload;
+      if (!cardData || !cardData.id) return;
+
+      setProductos((prev) =>
+        prev.map((p) =>
+          p.id === cardData.id ? { ...p, stock_actual: cardData.stock_actual } : p
+        )
+      );
+    };
+
+    socket.on('inventory_update', handleInventoryUpdate);
+    return () => {
+      socket.off('inventory_update', handleInventoryUpdate);
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const categoryLabels = {
@@ -86,30 +103,6 @@ const InventarioSinStock = () => {
     'Todos': 'InventarioTodos',
   };
 
-  const renderCard = (product) => (
-    <LinearGradient
-      key={product.id}
-      colors={['#ff9595', '#c15b5b']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.card}
-    >
-      <TouchableOpacity
-        style={styles.editIcon}
-        onPress={() => handleCardPress(product.id)}
-      >
-        <Ionicons name="pencil-outline" size={16} color="#333" />
-      </TouchableOpacity>
-
-      <Image
-        source={{ uri: product.image_url || 'https://via.placeholder.com/70' }}
-        style={styles.image}
-      />
-      <Text style={styles.name} numberOfLines={1}>{product.name}</Text>
-      <Text style={styles.info}>Stock: {product.stock_actual}</Text>
-    </LinearGradient>
-  );
-
   const groupByCategory = () => {
     const grouped = {};
     productos.forEach((producto) => {
@@ -122,14 +115,32 @@ const InventarioSinStock = () => {
 
   const groupedProductos = groupByCategory();
 
+  const renderCard = (item) => (
+    <LinearGradient
+      colors={[colors.primaryLight || '#d6d6d6', colors.primary || '#a0a0a0']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.card}
+      key={item.id}
+    >
+      <TouchableOpacity style={styles.editIcon} onPress={() => handleCardPress(item.id)}>
+        <Ionicons name="pencil-outline" size={16} color={colors.mode === 'dark' ? '#fff' : '#333'} />
+      </TouchableOpacity>
+      <Image
+        source={{ uri: item.image_url || 'https://via.placeholder.com/70' }}
+        style={styles.image}
+      />
+      <Text style={[styles.name, { color: colors.cardText }]}>{item.name}</Text>
+      <Text style={[styles.info, { color: colors.cardText }]}>Stock: {item.stock_actual}</Text>
+    </LinearGradient>
+  );
+
   if (loading) return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
 
   return (
     <>
-      <HeaderBar customTitle="Sin Stock" />
-
+      <HeaderBar customTitle="Sin stock" />
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (
             <TouchableOpacity
@@ -138,12 +149,21 @@ const InventarioSinStock = () => {
               onPress={() => navigation.navigate(screenMap[label])}
             >
               <LinearGradient
-                colors={label === 'Sin stock' ? ['#979797', '#4a4b54'] : ['#c7c7c7', '#c7c7c7']}
+                colors={
+                  label === 'Sin stock'
+                    ? [colors.primary, colors.primary]
+                    : [colors.background, colors.background]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.filterGradient}
               >
-                <Text style={[styles.filterText, { color: label === 'Sin stock' ? 'white' : colors.text }]}>
+                <Text
+                  style={[
+                    styles.filterText,
+                    { color: label === 'Sin stock' ? '#fff' : colors.text },
+                  ]}
+                >
                   {label}
                 </Text>
               </LinearGradient>
@@ -153,14 +173,12 @@ const InventarioSinStock = () => {
 
         <TouchableOpacity style={styles.registerButton} onPress={() => setModalVisible(true)}>
           <LinearGradient
-            colors={colors.mode === 'dark' ? ['#555', '#111'] : ['#ccc', '#fff']}
+            colors={[colors.primaryLight, colors.primary]}
             start={{ x: 0, y: 1 }}
             end={{ x: 0, y: 0 }}
             style={styles.gradientButton}
           >
-            <Text style={[styles.buttonText, { color: colors.mode === 'dark' ? '#fff' : '#000' }]}>
-              Registrar producto
-            </Text>
+            <Text style={[styles.buttonText, { color: '#fff' }]}>Registrar producto</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -182,7 +200,7 @@ const InventarioSinStock = () => {
             onClose={() => {
               setDetalleVisible(false);
               setProductoDetalle(null);
-              fetchProductos();
+              fetchData();
             }}
             producto={productoDetalle}
           />
@@ -198,7 +216,9 @@ const InventarioSinStock = () => {
             </View>
           ))
         ) : (
-          <Text style={[styles.noData, { color: colors.text }]}>No hay productos sin stock.</Text>
+          <Text style={[styles.noData, { color: colors.text }]}>
+            No hay productos sin stock.
+          </Text>
         )}
       </ScrollView>
     </>
@@ -206,14 +226,7 @@ const InventarioSinStock = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 250 },
-  title: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginBottom: 20,
-    alignSelf: 'center',
-    letterSpacing: 1.5,
-  },
+  container: { padding: 16, paddingBottom: 800 },
   filters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -259,17 +272,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
-    borderRadius: 16,
-    padding: 19,
-    marginRight: 20,
-    width: 160,
+    borderRadius: 14,
+    padding: 14,
+    width: 145,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 16,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
     shadowRadius: 6,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 2 },
   },
   image: {
     width: 160,
@@ -282,12 +294,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 4,
-    color: '#000',
   },
   info: {
     fontSize: 12,
     textAlign: 'center',
-    color: '#1f2937',
   },
   noData: {
     fontSize: 16,
@@ -312,6 +322,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+  editIcon: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    borderRadius: 20,
+    padding: 4,
+    zIndex: 1,
+  },
   categoryHeader: {
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -326,14 +344,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
     color: '#1f2937',
-  },
-  editIcon: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    borderRadius: 20,
-    padding: 4,
-    zIndex: 2,
   },
 });
 

@@ -1,3 +1,5 @@
+// src/screens/Monitoreo/MonitoreoAlertas.js
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -55,7 +57,7 @@ const MonitoreoAlertas = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = [...alerts];
+    let filtered = Array.isArray(alerts) ? [...alerts] : [];
     if (filterSensor !== 'all') {
       filtered = filtered.filter(alert =>
         alert.sensor?.toLowerCase() === filterSensor.toLowerCase()
@@ -87,19 +89,19 @@ const MonitoreoAlertas = () => {
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Historial de Alertas</Text>
-          <TouchableOpacity onPress={() => setSensorModalVisible(true)} style={styles.sensorButton}>
+          <TouchableOpacity onPress={() => setSensorModalVisible(true)} style={[styles.sensorButton, { backgroundColor: colors.primary }]}>
             <Text style={styles.sensorEmoji}>📡</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.filters}>
-          <Picker selectedValue={filterSensor} onValueChange={setFilterSensor} style={styles.picker}>
+          <Picker selectedValue={filterSensor} onValueChange={setFilterSensor} style={[styles.picker, { backgroundColor: colors.input }]}>
             <Picker.Item label="Sensor: Todos" value="all" />
             <Picker.Item label="Gas" value="Gas" />
             <Picker.Item label="Vibración" value="Vibration" />
           </Picker>
 
-          <Picker selectedValue={filterStatus} onValueChange={setFilterStatus} style={styles.picker}>
+          <Picker selectedValue={filterStatus} onValueChange={setFilterStatus} style={[styles.picker, { backgroundColor: colors.input }]}>
             <Picker.Item label="Estado: Todos" value="all" />
             <Picker.Item label="Leído" value="read" />
             <Picker.Item label="No leído" value="unread" />
@@ -108,7 +110,7 @@ const MonitoreoAlertas = () => {
 
         {loading ? (
           <ActivityIndicator size="large" color={colors.button} />
-        ) : (
+        ) : filteredAlerts && filteredAlerts.length > 0 ? (
           filteredAlerts.map((alert, index) => (
             <TouchableOpacity
               key={index}
@@ -117,24 +119,28 @@ const MonitoreoAlertas = () => {
                 setModalVisible(true);
               }}
             >
-              <LinearGradient colors={colors.gradientCard} style={styles.card}>
+              <LinearGradient
+                colors={colors?.gradientCard || [colors.primary, colors.primaryLight || '#60a5fa']}
+                style={[styles.card, { shadowColor: colors.primaryLight }]}
+              >
                 <Text style={[styles.cardTitle, { color: colors.cardText }]}>
                   {alert.sensor} – {formatDate(alert.timestamp)}
                 </Text>
-                <Text style={[styles.cardMessage, { color: colors.cardText }]}>{alert.message}</Text>
+                <Text style={[styles.cardMessage, { color: colors.cardText }]}>
+                  {alert.message}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
           ))
+        ) : (
+          <Text style={{ color: colors.text, textAlign: 'center' }}>
+            No hay alertas disponibles.
+          </Text>
         )}
       </ScrollView>
 
-      {/* MODAL DETALLE ALERTA */}
-      <Modal
-        visible={modalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      {/* Modal Detalle */}
+      <Modal visible={modalVisible} animationType="fade" transparent onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalBackground}>
           <View style={[styles.modalCard, { backgroundColor: colors.card }]}>
             {selectedAlert && (
@@ -157,13 +163,8 @@ const MonitoreoAlertas = () => {
         </View>
       </Modal>
 
-      {/* MODAL ESTADO DE SENSORES */}
-      <Modal
-        visible={sensorModalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setSensorModalVisible(false)}
-      >
+      {/* Modal Sensores */}
+      <Modal visible={sensorModalVisible} animationType="fade" transparent onRequestClose={() => setSensorModalVisible(false)}>
         <View style={styles.modalBackground}>
           <View style={[styles.sensorModalContainer, { backgroundColor: colors.card }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Estado de Sensores</Text>
@@ -175,7 +176,7 @@ const MonitoreoAlertas = () => {
               </View>
             ))}
             <TouchableOpacity onPress={() => setSensorModalVisible(false)}>
-              <Text style={[styles.closeModal, { color: colors.button }]}>Cerrar</Text>
+              <Text style={[styles.closeModal, { color: colors.primary }]}>Cerrar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -185,33 +186,24 @@ const MonitoreoAlertas = () => {
 };
 
 const styles = StyleSheet.create({
-  fullContainer: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 16,
-    paddingBottom: 100,
-  },
+  fullContainer: { flex: 1 },
+  scrollContainer: { padding: 16, paddingBottom: 100 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 },
   title: { fontSize: 20, fontWeight: 'bold' },
-  sensorButton: { backgroundColor: '#2563EB', padding: 10, borderRadius: 50 },
+  sensorButton: { padding: 10, borderRadius: 50 },
   sensorEmoji: { fontSize: 22 },
   filters: { flexDirection: 'row', gap: 10, marginBottom: 20, marginTop: 16 },
-  picker: { flex: 1, backgroundColor: '#fff', borderRadius: 20, height: 53 },
-  card: { padding: 18, borderRadius: 16, marginBottom: 16, shadowColor: '#000', elevation: 4 },
+  picker: { flex: 1, borderRadius: 20, height: 53 },
+  card: { padding: 18, borderRadius: 16, marginBottom: 16, elevation: 4 },
   cardTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 6 },
   cardMessage: { fontSize: 15 },
-
-  // Modal detalles alerta
   modalBackground: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalCard: { padding: 24, borderRadius: 14, width: '85%', alignItems: 'center', shadowColor: '#000', elevation: 5 },
+  modalCard: { padding: 24, borderRadius: 14, width: '85%', alignItems: 'center', elevation: 5 },
   modalSensor: { fontSize: 20, fontWeight: 'bold', marginBottom: 6 },
   modalDate: { fontSize: 14, marginBottom: 10 },
   modalMessage: { fontSize: 15, textAlign: 'center', marginBottom: 16 },
   closeModal: { fontSize: 16, fontWeight: 'bold', marginTop: 12 },
-
-  // Modal sensores
-  sensorModalContainer: { padding: 26, borderRadius: 14, width: '85%', alignItems: 'center', shadowColor: '#000', elevation: 5 },
+  sensorModalContainer: { padding: 26, borderRadius: 14, width: '85%', alignItems: 'center', elevation: 5 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1.2 },
   sensorRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 10, width: '100%', justifyContent: 'space-between' },
   sensorImage: { width: 28, height: 28, resizeMode: 'contain' },

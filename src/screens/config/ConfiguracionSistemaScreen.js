@@ -11,26 +11,20 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const COLORES_DISPONIBLES = [
-  '#0033ff', '#00cc99', '#ffcc00',
-  '#1e40af', '#3b82f6', '#000000',
-  '#ffffff', '#e11d48', '#9333ea', '#16a34a'
-];
+import { useTheme } from '../../context/ThemeContext';
+import ColorPicker from 'react-native-wheel-color-picker';
 
 export default function ConfiguracionSistemaScreen() {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { colors, fetchColorsFromBackend } = useTheme();
 
   const fetchConfig = async () => {
     try {
       const token = await AsyncStorage.getItem('accessToken');
       const response = await axios.get('https://auth.nexusutd.online/auth/config', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       setConfig(response.data);
     } catch (error) {
       console.error('Error al obtener configuración:', error.response?.data || error.message);
@@ -46,11 +40,9 @@ export default function ConfiguracionSistemaScreen() {
       const body = {
         color_primary: config.color_primary,
         color_secondary: config.color_secondary,
-        color_tertiary: config.color_tertiary,
       };
-
-      const response = await axios.put(
-        '',
+      const response = await axios.patch(
+        'https://auth.nexusutd.online/auth/config',
         body,
         {
           headers: {
@@ -60,18 +52,17 @@ export default function ConfiguracionSistemaScreen() {
         }
       );
 
+      await fetchColorsFromBackend();
+
       Alert.alert('✅ Éxito', response.data.message || 'Colores actualizados correctamente');
     } catch (error) {
       console.error('Error al guardar:', error.response?.data || error.message);
-      Alert.alert('❌ Error', 'No se pudieron guardar los cambios');
+      Alert.alert('❌ Error', 'No se pudo guardar el color');
     }
   };
 
   const actualizarColor = (key, color) => {
-    setConfig((prev) => ({
-      ...prev,
-      [key]: color,
-    }));
+    setConfig((prev) => ({ ...prev, [key]: color }));
   };
 
   useEffect(() => {
@@ -80,124 +71,135 @@ export default function ConfiguracionSistemaScreen() {
 
   if (loading || !config) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1e40af" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={styles.scrollContent}>
+      <View style={[styles.card, { backgroundColor: colors.card }]}>
+        {/* LOGO */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={{ uri: config.logo_url || 'https://via.placeholder.com/80' }}
+            style={[styles.logo, { borderColor: colors.primary }]}
+          />
+        </View>
 
-      <View style={styles.card}>
-        {/* Logo */}
-        <Text style={styles.sectionTitle}>Logo actual</Text>
-        <Image source={{ uri: config.logo_url }} style={styles.logo} />
-        <Text style={styles.subtext}>El logo se carga desde el backend</Text>
+        {/* NOMBRE */}
+        <Text style={[styles.label, { color: colors.text }]}>Nombre de la empresa</Text>
+        <View style={[styles.inputMock, { backgroundColor: colors.input, borderColor: colors.border }]}>
+          <Text style={[styles.inputText, { color: colors.text }]}>{config.company_name || 'Empresa'}</Text>
+        </View>
 
-        {/* Paleta de colores */}
-        <Text style={styles.sectionTitle}>Paleta de colores</Text>
+        {/* COLOR PRIMARIO */}
+        <Text style={[styles.label, { color: colors.text, marginTop: 20 }]}>Color principal de la app</Text>
+        <Text style={[styles.colorLabel, { color: colors.text }]}>Color primario</Text>
+        <ColorPicker
+          color={config.color_primary}
+          onColorChangeComplete={(color) => actualizarColor('color_primary', color)}
+          thumbSize={30}
+          sliderSize={20}
+          style={{ width: '100%', height: 200, marginBottom: 30 }}
+        />
 
-        {[
-          { label: 'Primario', key: 'color_primary' },
-          { label: 'Secundario', key: 'color_secondary' },
-          { label: 'Terciario', key: 'color_tertiary' },
-        ].map((item) => (
-          <View key={item.key} style={{ marginBottom: 16 }}>
-            <Text style={styles.label}>{item.label}</Text>
-            <View style={styles.colorRow}>
-              {COLORES_DISPONIBLES.map((color) => (
-                <TouchableOpacity
-                  key={color}
-                  onPress={() => actualizarColor(item.key, color)}
-                  style={[
-                    styles.colorCircle,
-                    {
-                      backgroundColor: color,
-                      borderWidth: config[item.key] === color ? 3 : 1,
-                      borderColor: config[item.key] === color ? '#000' : '#ccc',
-                    },
-                  ]}
-                />
-              ))}
-            </View>
-          </View>
-        ))}
+        {/* COLOR SECUNDARIO */}
+        
+        <Text style={[styles.label, { color: colors.text }]}>Color secundario - Cards</Text>
+        <ColorPicker
+          color={config.color_secondary}
+          onColorChangeComplete={(color) => actualizarColor('color_secondary', color)}
+          thumbSize={30}
+          sliderSize={20}
+          style={{ width: '100%', height: 200, marginBottom: 30 }}
+        />
 
-        {/* Botón guardar */}
-        <TouchableOpacity style={styles.saveButton} onPress={guardarCambios}>
-          <Text style={styles.saveButtonText}>Guardar cambios</Text>
-        </TouchableOpacity>
+        {/* BOTONES */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.cancelButton, {
+              backgroundColor: colors.cancel,
+              borderColor: colors.primary,
+            }]}
+            onPress={fetchConfig}
+          >
+            <Text style={[styles.cancelText, { color: colors.primary }]}>Cancelar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: colors.primary }]}
+            onPress={guardarCambios}
+          >
+            <Text style={styles.saveText}>Guardar cambios</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
-  container: { flex: 1, backgroundColor: '#f9fafb', padding: 20 },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#1e293b',
-  },
+  scrollContent: { padding: 20 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 24,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 4,
+    elevation: 5,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
-    color: '#334155',
-  },
-  subtext: {
-    textAlign: 'center',
-    color: '#666',
-    fontSize: 12,
-    marginBottom: 16,
-  },
+  logoContainer: { alignItems: 'center', marginBottom: 20 },
   logo: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
-    borderRadius: 10,
-    marginBottom: 10,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 1,
   },
   label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  inputMock: {
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 15,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  inputText: {
+    fontSize: 16,
+  },
+  colorLabel: {
     fontSize: 14,
-    marginBottom: 6,
-    color: '#475569',
+    fontWeight: '600',
+    marginBottom: 12,
   },
-  colorRow: {
+  buttonRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    justifyContent: 'flex-end',
+    marginTop: 55,
+    gap: 15,
   },
-  colorCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 10,
-    marginBottom: 10,
+  cancelButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  cancelText: {
+    fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#1e40af',
-    paddingVertical: 14,
-    borderRadius: 8,
-    marginTop: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 10,
   },
-  saveButtonText: {
+  saveText: {
     color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: '600',
   },
 });

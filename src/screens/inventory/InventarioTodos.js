@@ -100,7 +100,7 @@ const InventarioTodos = () => {
   const renderCard = (item) => (
     <LinearGradient
       key={item.id || item._id}
-      colors={['#f0f0f0', '#e4e4e7']}
+      colors={[colors.primaryLight || '#e4e4e7', '#ffffff']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.card}
@@ -109,14 +109,16 @@ const InventarioTodos = () => {
         style={styles.editIcon}
         onPress={() => handleCardPress(item.id || item._id)}
       >
-        <Ionicons name="pencil-outline" size={16} color="#333" />
+        <Ionicons name="pencil-outline" size={16} color={colors.text} />
       </TouchableOpacity>
       <Image
         source={{ uri: item.image_url || 'https://via.placeholder.com/70' }}
         style={styles.image}
       />
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.info}>Stock: {item.stock_actual}</Text>
+      <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
+      <Text style={[styles.info, { color: colors.text }]}>
+        Stock: {item.stock_actual}
+      </Text>
     </LinearGradient>
   );
 
@@ -127,7 +129,6 @@ const InventarioTodos = () => {
       <HeaderBar customTitle="Todos" />
 
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-
         <TextInput
           style={[styles.searchInput, { backgroundColor: colors.card, color: colors.text }]}
           placeholder="Buscar producto..."
@@ -144,12 +145,12 @@ const InventarioTodos = () => {
               onPress={() => navigation.navigate(screenMap[label])}
             >
               <LinearGradient
-                colors={label === 'Todos' ? ['#979797', '#4a4b54'] : ['#c7c7c7', '#c7c7c7']}
+                colors={label === 'Todos' ? [colors.primary, colors.secondary] : [colors.card, colors.card]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.filterGradient}
               >
-                <Text style={[styles.filterText, { color: label === 'Todos' ? 'white' : colors.text }]}> {label} </Text>
+                <Text style={[styles.filterText, { color: label === 'Todos' ? '#fff' : colors.text }]}> {label} </Text>
               </LinearGradient>
             </TouchableOpacity>
           ))}
@@ -157,12 +158,12 @@ const InventarioTodos = () => {
 
         <TouchableOpacity style={styles.registerButton} onPress={() => setModalVisible(true)}>
           <LinearGradient
-            colors={colors.mode === 'dark' ? ['#555', '#111'] : ['#ccc', '#fff']}
+            colors={[colors.primary, colors.secondary]}
             start={{ x: 0, y: 1 }}
             end={{ x: 0, y: 0 }}
             style={styles.gradientButton}
           >
-            <Text style={[styles.buttonText, { color: colors.mode === 'dark' ? '#fff' : '#000' }]}>Registrar producto</Text>
+            <Text style={[styles.buttonText, { color: '#fff' }]}>Registrar producto</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -202,13 +203,6 @@ const InventarioTodos = () => {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 800 },
-  title: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginBottom: 20,
-    alignSelf: 'center',
-    letterSpacing: 1.5,
-  },
   searchInput: {
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -247,8 +241,8 @@ const styles = StyleSheet.create({
   },
   editIcon: { position: 'absolute', top: 8, right: 8, borderRadius: 14, padding: 4, zIndex: 10 },
   image: { width: 160, height: 120, resizeMode: 'contain', marginBottom: 8 },
-  name: { fontWeight: 'bold', textAlign: 'center', fontSize: 14, marginBottom: 4, color: '#000' },
-  info: { fontSize: 12, textAlign: 'center', color: '#1f2937' },
+  name: { fontWeight: 'bold', textAlign: 'center', fontSize: 14, marginBottom: 4 },
+  info: { fontSize: 12, textAlign: 'center' },
   noData: { fontSize: 16, textAlign: 'center', marginTop: 20 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { padding: 16, borderRadius: 16, width: '90%', maxHeight: '90%' },

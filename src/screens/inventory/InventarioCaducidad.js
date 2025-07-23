@@ -11,6 +11,7 @@ import {
   Modal,
 } from 'react-native';
 import axios from 'axios';
+import socket from '../../services/socket';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
@@ -62,6 +63,26 @@ const InventarioCaducidad = () => {
   };
 
   useEffect(() => {
+    socket.connect();
+    const handleInventoryUpdate = (payload) => {
+      const { cardData } = payload;
+      if (!cardData || !cardData.id) return;
+
+      setProductos((prev) =>
+        prev.map((p) =>
+          p.id === cardData.id ? { ...p, stock_actual: cardData.stock_actual } : p
+        )
+      );
+    };
+
+    socket.on('inventory_update', handleInventoryUpdate);
+    return () => {
+      socket.off('inventory_update', handleInventoryUpdate);
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     fetchCaducidad();
   }, []);
 
@@ -97,23 +118,22 @@ const InventarioCaducidad = () => {
 
   const renderCard = (item) => (
     <LinearGradient
-      colors={['#fcdcdc', '#f87171']}
+      colors={[colors.primaryLight || '#d6d6d6', colors.primary || '#a0a0a0']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.card}
       key={item.id}
     >
       <TouchableOpacity style={styles.editIcon} onPress={() => handleCardPress(item.id)}>
-        <Ionicons name="pencil-outline" size={16} color="#333" />
+        <Ionicons name="pencil-outline" size={16} color={colors.mode === 'dark' ? '#fff' : '#333'} />
       </TouchableOpacity>
-
       <Image
         source={{ uri: item.image_url || 'https://via.placeholder.com/70' }}
         style={styles.image}
       />
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.info}>Stock: {item.stock_actual}</Text>
-      <Text style={styles.info}>Caduca: {item.expiration_date?.slice(0, 10)}</Text>
+      <Text style={[styles.name, { color: colors.cardText }]}>{item.name}</Text>
+      <Text style={[styles.info, { color: colors.cardText }]}>Stock: {item.stock_actual}</Text>
+      <Text style={[styles.info, { color: colors.cardText }]}>Caduca: {item.expiration_date?.slice(0, 10)}</Text>
     </LinearGradient>
   );
 
@@ -122,9 +142,7 @@ const InventarioCaducidad = () => {
   return (
     <>
       <HeaderBar customTitle="Próximos a caducar" />
-
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (
             <TouchableOpacity
@@ -133,12 +151,21 @@ const InventarioCaducidad = () => {
               onPress={() => navigation.navigate(screenMap[label])}
             >
               <LinearGradient
-                colors={label === 'Próximos a caducar' ? ['#979797', '#4a4b54'] : ['#c7c7c7', '#c7c7c7']}
+                colors={
+                  label === 'Próximos a caducar'
+                    ? [colors.primary, colors.primary]
+                    : [colors.background, colors.background]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.filterGradient}
               >
-                <Text style={[styles.filterText, { color: label === 'Próximos a caducar' ? 'white' : colors.text }]}>
+                <Text
+                  style={[
+                    styles.filterText,
+                    { color: label === 'Próximos a caducar' ? '#fff' : colors.text },
+                  ]}
+                >
                   {label}
                 </Text>
               </LinearGradient>
@@ -148,14 +175,12 @@ const InventarioCaducidad = () => {
 
         <TouchableOpacity style={styles.registerButton} onPress={() => setModalVisible(true)}>
           <LinearGradient
-            colors={colors.mode === 'dark' ? ['#555', '#111'] : ['#ccc', '#fff']}
+            colors={[colors.primaryLight, colors.primary]}
             start={{ x: 0, y: 1 }}
             end={{ x: 0, y: 0 }}
             style={styles.gradientButton}
           >
-            <Text style={[styles.buttonText, { color: colors.mode === 'dark' ? '#fff' : '#000' }]}>
-              Registrar producto
-            </Text>
+            <Text style={[styles.buttonText, { color: '#fff' }]}>Registrar producto</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -204,13 +229,6 @@ const InventarioCaducidad = () => {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 800 },
-  title: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginBottom: 20,
-    alignSelf: 'center',
-    letterSpacing: 1.5,
-  },
   filters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -278,12 +296,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 4,
-    color: '#000',
   },
   info: {
     fontSize: 12,
     textAlign: 'center',
-    color: '#1f2937',
   },
   noData: {
     fontSize: 16,

@@ -1,4 +1,3 @@
-// HomeScreen.js con modo claro (#e0e0e0) y colores adaptados dinámicamente
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,9 +11,8 @@ import axios from 'axios';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import HeaderBar from '../components/HeaderBar';
-import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Font from 'expo-font';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -67,63 +65,70 @@ export default function HomeScreen() {
     <View style={{ flex: 1 }}>
       <HeaderBar />
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>F I N A N Z A S</Text>
-        <View style={styles.singleCardRow}>
-          <LinearGradient colors={colors.gradientCard} style={styles.card}>
-            <Text style={[styles.cardTitle, { color: colors.cardText }]}>Utilidad</Text>
-            <Text style={[styles.cardValue, { color: colors.cardText }]}>
-              {utilidad ? `$${Number(utilidad).toLocaleString('es-MX')}` : '...'}
-            </Text>
-          </LinearGradient>
+
+        {/* Finanzas */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Finanzas</Text>
+        <View style={[styles.card, { backgroundColor: colors.primaryLight }]}>
+          <Text style={[styles.cardTitle, { color: colors.cardText }]}>Utilidad de hoy</Text>
+          <Image source={require('./../../assets/bolsa.png')} style={styles.icon} />
+          <Text style={[styles.cardValue, { color: colors.cardText }]}>
+            {utilidad ? `$${Number(utilidad).toLocaleString('es-MX')}` : ''}
+          </Text>
         </View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>M O N I T O R E O</Text>
-        <View style={styles.cardRow}>
-          <LinearGradient colors={colors.gradientCard} style={styles.card}>
-            <Image source={require('./../../assets/temp.png')} style={styles.icon} />
-            <Text style={[styles.cardTitle, { color: colors.cardText }]}>Temperatura</Text>
-            <Text style={[styles.cardValue, { color: colors.cardText }]}>
-              {temperatura ? `${temperatura} °C` : '...'}
-            </Text>
-          </LinearGradient>
-
-          <LinearGradient colors={colors.gradientCard} style={styles.card}>
-            <Image source={require('./../../assets/drop.png')} style={styles.icon} />
-            <Text style={[styles.cardTitle, { color: colors.cardText }]}>Humedad</Text>
-            <Text style={[styles.cardValue, { color: colors.cardText }]}>
-              {humedad ? `${humedad} %` : '...'}
-            </Text>
-          </LinearGradient>
+        {/* Monitoreo */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Monitoreo</Text>
+        <View style={[styles.card, { backgroundColor: colors.primaryLight }]}>
+          <Text style={[styles.cardTitle, { color: colors.cardText }]}>Temperatura</Text>
+          <Image source={require('./../../assets/temp.png')} style={styles.icon} />
+          <Text style={[styles.cardValue, { color: colors.cardText }]}>
+            {temperatura ? `${temperatura} °C` : '...'}
+          </Text>
+        </View>
+        <View style={[styles.card, { backgroundColor: colors.primaryLight }]}>
+          <Text style={[styles.cardTitle, { color: colors.cardText }]}>Humedad</Text>
+          <Image source={require('./../../assets/drop.png')} style={styles.icon} />
+          <Text style={[styles.cardValue, { color: colors.cardText }]}>
+            {humedad ? `${humedad} %` : '...'}
+          </Text>
         </View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>A L E R T A S</Text>
+        {/* Alertas */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Alertas recientes</Text>
         <View style={styles.alertContainer}>
-          {alertas.map((alerta) => (
-            <LinearGradient
-              key={alerta.id}
-              colors={colors.gradientCard}
-              style={styles.alertBox}
-            >
-              <Text style={[styles.alertType, { color: colors.cardText }]}>
-                {alerta.type.toUpperCase()}
-              </Text>
-              <Text style={[styles.alertMessage, { color: colors.cardText }]}>
-                {alerta.message}
-              </Text>
-              <Text style={[styles.alertTime, { color: colors.cardText }]}>
-                {new Date(alerta.timestamp).toLocaleString('es-MX')}
-              </Text>
-            </LinearGradient>
-          ))}
+          {alertas.length > 0 ? (
+            alertas.map((alerta) => (
+              <View
+                key={alerta.id}
+                style={[styles.alertBox, { backgroundColor: colors.primaryLight }]}
+              >
+                <Text style={[styles.alertType, { color: colors.cardText }]}>
+                  {alerta.type.toUpperCase()}
+                </Text>
+                <Text style={[styles.alertMessage, { color: colors.cardText }]}>
+                  {alerta.message}
+                </Text>
+                <Text style={[styles.alertTime, { color: colors.cardText }]}>
+                  {new Date(alerta.timestamp).toLocaleString('es-MX')}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <Text style={[styles.noAlerts, { color: colors.cardText }]}>Sin alertas recientes</Text>
+          )}
+        </View>
 
-          <TouchableOpacity
-  style={[styles.btnVerMas, { backgroundColor: colors.button }]}
-  onPress={() => navigation.navigate('MonitoreoAlertas')}
-
+        {/* Botón Acerca de */}
+        <TouchableOpacity
+  style={[styles.aboutButton, { backgroundColor: colors.primaryLight }]}
+  onPress={() => navigation.navigate('Acerca')}
 >
+  <Text style={[styles.aboutText, { color: colors.cardText }]}>N O S O T R O S</Text>
 </TouchableOpacity>
 
-        </View>
+
+
+
       </ScrollView>
     </View>
   );
@@ -137,54 +142,46 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Urbanist-Bold',
-    textAlign: 'center',
-    marginVertical: 12,
-    fontWeight: 'bold',
-  },
-  singleCardRow: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
+    marginBottom: 12,
+    textAlign: 'left',
   },
   card: {
-    width: 160,
-    height: 160,
-    borderRadius: 16,
-    padding: 14,
-    justifyContent: 'center',
+    width: '100%',
+    borderRadius: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    marginBottom: 20,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    marginBottom: 8,
-    tintColor: '#fff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Urbanist-Bold',
-    marginBottom: 4,
-    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  icon: {
+    width: 60,
+    height: 60,
+    marginBottom: 16,
+    resizeMode: 'contain',
   },
   cardValue: {
-    fontSize: 17,
+    fontSize: 16,
     fontFamily: 'Urbanist-Regular',
+    textAlign: 'center',
   },
   alertContainer: {
-    paddingHorizontal: 10,
+    gap: 10,
   },
   alertBox: {
     borderRadius: 12,
     padding: 12,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   alertType: {
     fontFamily: 'Urbanist-Bold',
@@ -193,16 +190,32 @@ const styles = StyleSheet.create({
   },
   alertMessage: {
     fontFamily: 'Urbanist-Regular',
-    fontSize: 16,
+    fontSize: 15,
   },
   alertTime: {
     fontFamily: 'Urbanist-Regular',
-    fontSize: 16,
+    fontSize: 13,
     textAlign: 'right',
     marginTop: 4,
   },
-  btnText: {
+  noAlerts: {
+    fontSize: 15,
+    fontFamily: 'Urbanist-Regular',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  aboutButton: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+    width: 200,
+    left: 285,
+  },
+  aboutText: {
+    fontSize: 16,
     fontFamily: 'Urbanist-Bold',
-    color: '#fff',
+    fontWeight: 'bold',
   },
 });

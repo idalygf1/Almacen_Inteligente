@@ -10,6 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import axios from 'axios';
+import socket from '../../services/socket';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
@@ -67,6 +68,28 @@ const InventarioDebajo = () => {
   };
 
   useEffect(() => {
+    socket.connect();
+
+    const handleInventoryUpdate = (payload) => {
+      const { cardData } = payload;
+      if (!cardData || !cardData.id) return;
+
+      setProductos(prev =>
+        prev.map(p =>
+          p.id === cardData.id ? { ...p, stock_actual: cardData.stock_actual } : p
+        )
+      );
+    };
+
+    socket.on('inventory_update', handleInventoryUpdate);
+
+    return () => {
+      socket.off('inventory_update', handleInventoryUpdate);
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     fetchProductos();
   }, [token]);
 
@@ -91,7 +114,7 @@ const InventarioDebajo = () => {
   const renderCard = (product) => (
     <LinearGradient
       key={product.id}
-      colors={['#ff9595', '#c15b5b']}
+      colors={[colors.primaryLight, colors.primary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.card}
@@ -131,7 +154,6 @@ const InventarioDebajo = () => {
       <HeaderBar customTitle="Debajo del Mínimo" />
 
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (
             <TouchableOpacity
@@ -140,12 +162,12 @@ const InventarioDebajo = () => {
               onPress={() => navigation.navigate(screenMap[label])}
             >
               <LinearGradient
-                colors={label === 'Debajo del mínimo' ? ['#979797', '#4a4b54'] : ['#c7c7c7', '#c7c7c7']}
+                colors={label === 'Debajo del mínimo' ? [colors.primary, colors.primary] : ['#c7c7c7', '#c7c7c7']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.filterGradient}
               >
-                <Text style={[styles.filterText, { color: label === 'Debajo del mínimo' ? 'white' : colors.text }]}>
+                <Text style={[styles.filterText, { color: label === 'Debajo del mínimo' ? '#fff' : colors.text }]}>
                   {label}
                 </Text>
               </LinearGradient>
@@ -211,13 +233,6 @@ const InventarioDebajo = () => {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 2500 },
-  title: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginBottom: 20,
-    alignSelf: 'center',
-    letterSpacing: 1.5,
-  },
   filters: {
     flexDirection: 'row',
     flexWrap: 'wrap',

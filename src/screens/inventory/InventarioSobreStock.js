@@ -10,6 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import axios from 'axios';
+import socket from '../../services/socket';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
@@ -67,6 +68,26 @@ const InventarioSobreStock = () => {
   };
 
   useEffect(() => {
+    socket.connect();
+
+    const handleInventoryUpdate = (payload) => {
+      const { cardData } = payload;
+      if (!cardData || !cardData.id) return;
+
+      setProductos((prev) =>
+        prev.map((p) => (p.id === cardData.id ? { ...p, stock_actual: cardData.stock_actual } : p))
+      );
+    };
+
+    socket.on('inventory_update', handleInventoryUpdate);
+
+    return () => {
+      socket.off('inventory_update', handleInventoryUpdate);
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     fetchProductos();
   }, [token]);
 
@@ -91,15 +112,12 @@ const InventarioSobreStock = () => {
   const renderCard = (item) => (
     <LinearGradient
       key={item.id}
-      colors={['#ddd6fe', '#c4b5fd']}
+      colors={[colors.primaryLight, colors.primary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.card}
     >
-      <TouchableOpacity
-        style={styles.editIcon}
-        onPress={() => handleCardPress(item.id)}
-      >
+      <TouchableOpacity style={styles.editIcon} onPress={() => handleCardPress(item.id)}>
         <Ionicons name="pencil-outline" size={16} color="#333" />
       </TouchableOpacity>
 
@@ -107,8 +125,8 @@ const InventarioSobreStock = () => {
         source={{ uri: item.image_url || 'https://via.placeholder.com/70' }}
         style={styles.image}
       />
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.info}>Stock: {item.stock_actual}</Text>
+      <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
+      <Text style={[styles.info, { color: colors.text }]}>Stock: {item.stock_actual}</Text>
     </LinearGradient>
   );
 
@@ -117,29 +135,35 @@ const InventarioSobreStock = () => {
   return (
     <>
       <HeaderBar customTitle="Sobre Stock" />
-
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-
-
         <View style={styles.filters}>
-          {Object.entries(categoryLabels).map(([key, label]) => (
-            <TouchableOpacity
-              key={key}
-              style={styles.filterButton}
-              onPress={() => navigation.navigate(screenMap[label])}
-            >
-              <LinearGradient
-                colors={label === 'Sobrestock' ? ['#979797', '#4a4b54'] : ['#c7c7c7', '#c7c7c7']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.filterGradient}
+          {Object.entries(categoryLabels).map(([key, label]) => {
+            const isActive = label === 'Sobrestock';
+            return (
+              <TouchableOpacity
+                key={key}
+                style={styles.filterButton}
+                onPress={() => navigation.navigate(screenMap[label])}
               >
-                <Text style={[styles.filterText, { color: label === 'Sobrestock' ? 'white' : colors.text }]}>
-                  {label}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
+                <LinearGradient
+                  colors={
+                    isActive
+                      ? [colors.primaryLight, colors.primary]
+                      : colors.mode === 'dark'
+                      ? ['#444', '#111']
+                      : ['#e5e5e5', '#d4d4d4']
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.filterGradient}
+                >
+                  <Text style={[styles.filterText, { color: isActive ? '#fff' : colors.text }]}>
+                    {label}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         <TouchableOpacity style={styles.registerButton} onPress={() => setModalVisible(true)}>
@@ -193,13 +217,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 800,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginBottom: 20,
-    alignSelf: 'center',
-    letterSpacing: 1.5,
   },
   filters: {
     flexDirection: 'row',
@@ -269,12 +286,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 4,
-    color: '#000',
   },
   info: {
     fontSize: 12,
     textAlign: 'center',
-    color: '#1f2937',
   },
   editIcon: {
     position: 'absolute',

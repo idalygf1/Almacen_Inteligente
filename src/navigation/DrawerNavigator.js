@@ -26,6 +26,10 @@ import FinanzasPrediccion from '../screens/finanzas/FinanzasPrediccion';
 import FinanzasIA from '../screens/finanzas/FinanzasIA';
 
 
+
+
+
+
 import CustomDrawer from './CustomDrawer';
 
 const Drawer = createDrawerNavigator();
@@ -70,6 +74,8 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="FinanzasResumen" component={FinanzasResumen} />
       <Drawer.Screen name="FinanzasPrediccion" component={FinanzasPrediccion} />
       <Drawer.Screen name="FinanzasIA" component={FinanzasIA} />
+
+
 
 
     </Drawer.Navigator>

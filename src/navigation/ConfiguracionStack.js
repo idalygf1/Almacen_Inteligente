@@ -5,6 +5,7 @@ import UsuariosScreen from '../screens/config/users/UsuariosScreen';
 import PreferenciasScreen from '../screens/config/PreferenciasScreen';
 import ConfiguracionSistemaScreen from '../screens/config/ConfiguracionSistemaScreen';
 
+
 const Stack = createNativeStackNavigator();
 
 export default function ConfiguracionStack() {

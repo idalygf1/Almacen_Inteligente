@@ -100,9 +100,14 @@ export default function HeaderBar({ customTitle }) {
 
   return (
     <LinearGradient
-      colors={colors.mode === 'dark' ? ['#222', '#111'] : ['#e0e0e0', '#c6c6c6']}
-      style={styles.container}
-    >
+  colors={
+    colors.mode === 'dark'
+      ? [colors.primary, '#111']
+      : [colors.primary, '#c6c6c6']
+  }
+  style={styles.container}
+>
+
       {/* IZQUIERDA */}
       <View style={styles.left}>
         {logoUrl && <Image source={{ uri: logoUrl }} style={styles.logo} />}

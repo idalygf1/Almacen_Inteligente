@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
   View,
-  Text as RNText, // ✅ Evita conflicto si algún otro componente se llama Text
+  Text as RNText,
   TouchableOpacity,
   Image,
   StyleSheet,
@@ -17,6 +17,7 @@ import RegistrarProductos from './RegistrarProductos';
 import DetalleProductoModal from './DetalleProductoModal';
 import HeaderBar from '../../components/HeaderBar';
 import { LinearGradient } from 'expo-linear-gradient';
+import socket from '../../services/socket';
 
 const InventoryScreen = () => {
   const { token } = useAuth();
@@ -57,6 +58,31 @@ const InventoryScreen = () => {
 
   useEffect(() => {
     fetchInventory();
+
+    socket.on('inventory_update', (payload) => {
+      const { cardData } = payload;
+
+      setInventory((prevInventory) => {
+        if (!prevInventory || !cardData) return prevInventory;
+
+        const updatedInventory = { ...prevInventory };
+
+        Object.keys(updatedInventory).forEach((category) => {
+          updatedInventory[category] = updatedInventory[category].map((product) => {
+            if (product.id === cardData.id) {
+              return { ...product, stock_actual: cardData.stock_actual };
+            }
+            return product;
+          });
+        });
+
+        return updatedInventory;
+      });
+    });
+
+    return () => {
+      socket.off('inventory_update');
+    };
   }, []);
 
   const categoryLabels = {
@@ -80,7 +106,7 @@ const InventoryScreen = () => {
   const renderCard = (product) => (
     <TouchableOpacity key={product.id} onPress={() => handleCardPress(product.id)}>
       <LinearGradient
-        colors={colors.mode === 'dark' ? ['#222', '#000'] : ['#ffffff', '#dcdcdc']}
+        colors={[colors.primaryLight || '#dcdcdc', colors.primary || '#cccccc']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.card}
@@ -105,9 +131,8 @@ const InventoryScreen = () => {
 
   return (
     <>
-      <HeaderBar customTitle="Inventario"/>
+      <HeaderBar customTitle="Inventario" />
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-
         <View style={styles.filters}>
           {Object.entries(categoryLabels).map(([key, label]) => (
             <TouchableOpacity
@@ -116,12 +141,12 @@ const InventoryScreen = () => {
               onPress={() => navigation.navigate(screenMap[label])}
             >
               <LinearGradient
-                colors={colors.mode === 'dark' ? ['#444', '#111'] : ['#c7c7c7', '#c7c7c7']}
+                colors={[colors.primaryLight || '#c7c7c7', colors.primary || '#999']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.filterGradient}
               >
-                <RNText style={[styles.filterText, { color: colors.text }]}>{label}</RNText>
+                <RNText style={[styles.filterText, { color: colors.cardText }]}>{label}</RNText>
               </LinearGradient>
             </TouchableOpacity>
           ))}
@@ -129,12 +154,12 @@ const InventoryScreen = () => {
 
         <TouchableOpacity style={styles.registerButton} onPress={() => setModalVisible(true)}>
           <LinearGradient
-            colors={colors.mode === 'dark' ? ['#555', '#111'] : ['#ccc', '#fff']}
+            colors={[colors.primaryLight || '#ccc', colors.primary || '#888']}
             start={{ x: 0, y: 1 }}
             end={{ x: 0, y: 0 }}
             style={styles.gradientButton}
           >
-            <RNText style={[styles.buttonText, { color: colors.mode === 'dark' ? '#fff' : '#000' }]}>
+            <RNText style={[styles.buttonText, { color: colors.cardText }]}>
               Registrar producto
             </RNText>
           </LinearGradient>
@@ -184,13 +209,6 @@ const InventoryScreen = () => {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 80 },
-  title: {
-    fontSize: 26,
-    fontWeight: '900',
-    marginBottom: 20,
-    alignSelf: 'center',
-    letterSpacing: 1.5,
-  },
   filters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
